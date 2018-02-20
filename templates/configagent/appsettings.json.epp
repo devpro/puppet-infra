@@ -1,0 +1,20 @@
+<%- | String $puppet_file_path,
+      String $logging_debug_loglevel = "Information",
+      String $logging_console_loglevel = "Information"
+| -%>
+{
+  "Logging": {
+    "IncludeScopes": false,
+    "Debug": {
+      "LogLevel": {
+        "Default": "<%= $logging_debug_loglevel %>"
+      }
+    },
+    "Console": {
+      "LogLevel": {
+        "Default": "<%= $logging_console_loglevel %>"
+      }
+    }
+  },
+  "PuppetFilePath": "<%= $puppet_file_path %>"
+}

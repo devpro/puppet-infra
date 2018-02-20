@@ -17,7 +17,8 @@ class alteredinfra::application::configagent (
   String $iis_appcmd_exe_path    = "C:\\Windows\\system32\\inetsrv\\appcmd.exe",
   String $iis_apppool_name       = 'ConfigurationAgentAppPool',
   String $iis_site_name          = 'Default Web Site',
-  String $temporary_folder_path  = "D:\\Temp"
+  String $temporary_folder_path  = "C:\\Temp",
+  String $log_folder_path        = "C:\\ProgramData\\Devpro\\ConfigurationAgent\\Logs"
 ) {
   # input validation
   validate_re($application_version, ['^(\d_\d_\d_\d.*)$'])
@@ -29,18 +30,32 @@ class alteredinfra::application::configagent (
   $package_path     = "${package_repository}\\${application_name}_${application_version}.zip"
   $application_path = "${installation_root_path}\\${application_name}_${application_version}"
 
+  file { $temporary_folder_path:
+    ensure => 'directory'
+  }
   file { $package_path:
     ensure => 'present'
   }
   file { $installation_root_path:
     ensure => 'directory'
   }
-  ~> file { "${application_path}\\appsettings.json":
+  file { $log_folder_path:
+    ensure => 'directory'
+  }
+  file { "${application_path}\\appsettings.json":
     ensure  => file,
     content => epp('alteredinfra/configagent/appsettings.json.epp', {
-        'puppet_file_path'         => $puppet_file_path,
+        'puppet_file_path'         => regsubst($puppet_file_path, "\\\\", "\\\\\\\\", 'G'),
         'logging_debug_loglevel'   => $logging_level,
         'logging_console_loglevel' => $logging_level
+      })
+  }
+  file { "${application_path}\\web.config":
+    ensure  => file,
+    content => epp('alteredinfra/configagent/web.config.epp', {
+        'dotnet_argument'    => ".\\Devpro.ConfigurationAgent.WebApp.dll",
+        'stdout_log_enabled' => false,
+        'stdout_log_file'    => "${log_folder_path}\\stdout"
       })
   }
 
@@ -51,28 +66,35 @@ class alteredinfra::application::configagent (
       creates   => $application_path,
       logoutput => false
     }
-    ~> iis_application_pool { $iis_apppool_name:
+    iis_application_pool { $iis_apppool_name:
       ensure                    => 'present',
       enable32_bit_app_on_win64 => false,
       managed_runtime_version   => 'v4.0',
       managed_pipeline_mode     => 'Integrated',
       identity_type             => 'ApplicationPoolIdentity'
     }
-    ~> iis_application { "${iis_site_name}\\${application_name}":
+    iis_application { "${iis_site_name}\\${application_name}":
       ensure          => 'present',
       applicationname => $application_name,
       sitename        => $iis_site_name,
       physicalpath    => $application_path,
       applicationpool => $iis_apppool_name
     }
-    ~> exec {"Restart ${iis_apppool_name} IIS application pool":
+    exec {"Restart ${iis_apppool_name} IIS application pool":
       command     => "${iis_appcmd_exe_path} start apppool ${iis_apppool_name}",
       refreshonly => true,
       logoutput   => true
     }
+
+    File[$package_path]
+    -> File[$installation_root_path]
+    -> Iis_application_pool[$iis_apppool_name]
+    -> File[$temporary_folder_path]
+    -> Exec["Extract ${application_name} package"]
+    ~> Iis_application["${iis_site_name}\\${application_name}"]
+    ~> File["${application_path}\\web.config"]
+    ~> File["${application_path}\\appsettings.json"]
+    ~> Exec["Restart ${iis_apppool_name} IIS application pool"]
+    -> File[$log_folder_path]
   }
-
-  File[$package_path] ~> Exec["Extract ${application_name} package"]
-
-  File["${application_path}\\appsettings.json"] ~> Exec["Restart ${iis_apppool_name} IIS application pool"]
 }

@@ -1,16 +1,6 @@
 
 # alteredinfra
 
-Welcome to your new module. A short overview of the generated parts can be found in the PDK documentation at https://puppet.com/pdk/latest/pdk_generating_modules.html .
-
-The README template below provides a starting point with details about what information to include in your README.
-
-
-
-
-
-
-
 #### Table of Contents
 
 1. [Description](#description)
@@ -25,7 +15,7 @@ The README template below provides a starting point with details about what info
 
 ## Description
 
-Start with a one- or two-sentence summary of what the module does and/or what problem it solves. This is your 30-second elevator pitch for your module. Consider including OS/Puppet version it works with.
+The alteredinfra module installs, configures and manages various infrastructure components. For the moment, it only works on Windows OS and Puppet 4 or higher.
 
 You can give more descriptive information in a second paragraph. This paragraph should answer the questions: "What does this module *do*?" and "Why would I use it?" If your module has a range of functionality (installation, configuration, management, etc.), this is the time to mention it.
 
@@ -49,7 +39,23 @@ If your most recent release breaks compatibility or requires particular steps fo
 
 ### Beginning with alteredinfra
 
-The very basic steps needed for a user to get the module up and running. This can include setup steps, if necessary, or it can be an example of the most basic use of the module.
+If you use a `puppetfile` (with a tool like r10k for example), here is the line to be added:
+
+```rubydsl
+mod 'alteredinfra',
+  :git    => 'https://github.com/devpro/puppet-infra',
+  :branch => 'dev'
+```
+
+In addition to `include alteredinfra::application::configagent`, the following data needs to be reviewed:
+
+```yaml
+# mandatory
+alteredinfra::application::configagent::package_repository: path_to_repo_where_zipfile_is
+alteredinfra::application::configagent::application_version: "1_0_0_0"
+# optional
+alteredinfra::application::configagent::puppet_file_path: D:\Programs\PuppetLabs\Puppet\bin\puppet.bat
+```
 
 ## Usage
 

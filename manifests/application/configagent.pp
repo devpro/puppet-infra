@@ -48,7 +48,8 @@ class alteredinfra::application::configagent (
     content => epp('alteredinfra/configagent/appsettings.json.epp', {
         'puppet_file_path'         => regsubst($puppet_file_path, "\\\\", "\\\\\\\\", 'G'),
         'logging_debug_loglevel'   => $logging_level,
-        'logging_console_loglevel' => $logging_level
+        'logging_console_loglevel' => $logging_level,
+        'application_version'      => regsubst($application_version, '_', '.', 'G')
       })
   }
   file { "${application_path}\\web.config":

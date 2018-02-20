@@ -16,5 +16,6 @@
       }
     }
   },
-  "PuppetFilePath": "<%= $puppet_file_path %>"
+  "PuppetFilePath": "<%= $puppet_file_path %>",
+  "ApplicationVersion": "<%= $application_version %>"
 }

@@ -1,7 +1,6 @@
+# Altered-Infra Puppet module
 
-# alteredinfra
-
-#### Table of Contents
+## Table of Contents
 
 1. [Description](#description)
 2. [Setup - The basics of getting started with alteredinfra](#setup)
@@ -15,27 +14,32 @@
 
 ## Description
 
-The alteredinfra module installs, configures and manages various infrastructure components. For the moment, it only works on Windows OS and Puppet 4 or higher.
+The **alteredinfra** module installs, configures and manages various infrastructure components. For the moment, it only works on Windows OS and Puppet 4 or higher.
 
-You can give more descriptive information in a second paragraph. This paragraph should answer the questions: "What does this module *do*?" and "Why would I use it?" If your module has a range of functionality (installation, configuration, management, etc.), this is the time to mention it.
+With this module, you are able to easily install & configure:
+
+* the configuration agent that is part of the Altered Infrastructure solution provided by [www.devpro.fr](http://www.devpro.fr).
+
+On a side note, this is an example of Puppet code to install an ASP.NET Core application!
 
 ## Setup
 
-### What alteredinfra affects **OPTIONAL**
+### What alteredinfra affects
 
 If it's obvious what your module touches, you can skip this section. For example, folks can probably figure out that your mysql_instance module affects their MySQL instances.
 
-If there's more that they should know about, though, this is the place to mention:
+This modules touches the following elements:
 
-* Files, packages, services, or operations that the module will alter, impact, or execute.
-* Dependencies that your module automatically installs.
-* Warnings or other important notices.
+* Files located by default in `C:\Program Files` (application files) and `D:\ProgamData` (log files)
+* IIS by adding a new appliation beneath the default web site
 
-### Setup Requirements **OPTIONAL**
+### Setup Requirements
 
-If your module requires anything extra before setting up (pluginsync enabled, another module, etc.), mention it here.
+This modules requires the following modules:
 
-If your most recent release breaks compatibility or requires particular steps for upgrading, you might want to include an additional "Upgrading" section here.
+* [puppetlabs/iis](https://forge.puppet.com/puppetlabs/iis)
+
+It's advised to use `r10k` and a puppetfile to load modules.
 
 ### Beginning with alteredinfra
 
@@ -47,41 +51,169 @@ mod 'alteredinfra',
   :branch => 'dev'
 ```
 
-In addition to `include alteredinfra::application::configagent`, the following data needs to be reviewed:
+In addition to `include alteredinfra::application::configagent`, the following data needs to be configured:
 
 ```yaml
-# mandatory
 alteredinfra::application::configagent::package_repository: path_to_repo_where_zipfile_is
 alteredinfra::application::configagent::application_version: "1_0_0_0"
-# optional
-alteredinfra::application::configagent::puppet_file_path: D:\Programs\PuppetLabs\Puppet\bin\puppet.bat
 ```
 
 ## Usage
 
-This section is where you describe how to customize, configure, and do the fancy stuff with your module here. It's especially helpful if you include usage examples and code samples for doing things with your module.
+All parameters for the ConfigurationAgent application are contained within the main `application/configagent` class, so for any function of the module, set the options you want. See the common usages below for examples.
+
+### Install and enable alteredinfra
+
+```puppet
+include alteredinfra::application::configagent
+```
 
 ## Reference
 
-Users need a complete list of your module's classes, types, defined types providers, facts, and functions, along with the parameters for each. You can provide this list either via Puppet Strings code comments or as a complete list in the README Reference section.
+### Classes
 
-* If you are using Puppet Strings code comments, this Reference section should include Strings information so that your users know how to access your documentation.
+#### Public classes
 
-* If you are not using Puppet Strings, include a list of all of your classes, defined types, and so on, along with their parameters. Each element in this listing should include:
+* alteredinfra::application::configagent: Application class.
 
-  * The data type, if applicable.
-  * A description of what the element does.
-  * Valid values, if the data type doesn't make it obvious.
-  * Default value, if any.
+### Parameters
+
+The following parameters are available in the `alteredinfra::application::configagent` class:
+
+#### `application_name`
+
+Optional.
+
+Data type: String.
+
+Application name that will be used in the application file path and application pool name.
+
+Default value: `ConfigurationAgent`.
+
+#### `installation_root_path`
+
+Optional.
+
+Data type: String.
+
+Root path where the application will be installed.
+
+Default value: `C:\Program Files\Devpro`.
+
+#### `temporary_folder_path`
+
+Optional.
+
+Data type: String.
+
+Temporary folder where the installation package will be extracted.
+
+Default value: `C:\Temp`.
+
+#### `log_folder_path`
+
+Optional.
+
+Data type: String.
+
+Application log file folder path.
+
+Default value: `C:\ProgramData\Devpro\ConfigurationAgent\Logs`.
+
+#### `puppet_file_path`
+
+Optional.
+
+Data type: String.
+
+Path of puppet file.
+
+Default value: `C:\Program Files\Puppet Labs\Puppet\bin\puppet.bat`.
+
+#### `package_repository`
+
+Mandatory.
+
+Data type: String.
+
+Application package repository.
+
+#### `application_version`
+
+Mandatory.
+
+Data type: String.
+
+Application version numer (for example: 1_0_0_0).
+
+#### `logging_level`
+
+Optional.
+
+Data type: String.
+
+Logging level.
+
+Default value: `Information`.
+
+#### `windows_7zip_exe_path`
+
+Optional.
+
+Data type: String.
+
+Path of 7zip exe file on Windows.
+
+Default value: `C:\Program Files\7-Zip\7z.exe`.
+
+#### `iis_appcmd_exe_path`
+
+Optional.
+
+Data type: String.
+
+Path of IIS appcmd exe file.
+
+Default value: `C:\\Windows\\system32\\inetsrv\\appcmd.exe`.
+
+#### `iis_apppool_name`
+
+Optional.
+
+Data type: String.
+
+IIS application pool name.
+
+Default value: `ConfigurationAgentAppPool`.
+
+#### `iis_site_name`
+
+Optional.
+
+Data type: String.
+
+IIS site name on which the application will be installed.
+
+Default value: `Default Web Site`.
+
+#### `iis_apppool_identitytype`
+
+Optional.
+
+Data type: String.
+
+IIS application pool identity type.
+
+Default value: `LocalSystem`.
 
 ## Limitations
 
-This is where you list OS compatibility, version compatibility, etc. If there are Known Issues, you might want to include them under their own heading here.
+This module has been tested on Windows 10 and Windows 2008 R2 running Puppet agent open source 5.3.
 
 ## Development
 
-Since your module is awesome, other users will want to play with it. Let them know what the ground rules for contributing are.
+This is an open project, anyone can contribute and provide feedbacks.
 
-## Release Notes/Contributors/Etc. **Optional**
+## Contributors
 
-If you aren't using changelog, put your release notes here (though you should consider using changelog). You can also add any additional sections you feel are necessary or important to include here. Please use the `## ` header.
+To see who's already involved, see the [list of contributors.](https://github.com/devpro/puppet-infra/graphs/contributors)

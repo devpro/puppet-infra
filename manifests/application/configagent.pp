@@ -7,18 +7,19 @@
 # @example
 #   include alteredinfra::application::configagent
 class alteredinfra::application::configagent (
-  String $application_name       = 'ConfigurationAgent',
-  String $installation_root_path = "C:\\Program Files\\Devpro",
-  String $puppet_file_path       = "C:\\Program Files\\Puppet Labs\\Puppet\\bin\\puppet.bat",
-  String $package_repository     = undef,
-  String $application_version    = undef,
-  String $logging_level          = 'Information',
-  String $windows_7zip_exe_path  = "C:\\Program Files\\7-Zip\\7z.exe",
-  String $iis_appcmd_exe_path    = "C:\\Windows\\system32\\inetsrv\\appcmd.exe",
-  String $iis_apppool_name       = 'ConfigurationAgentAppPool',
-  String $iis_site_name          = 'Default Web Site',
-  String $temporary_folder_path  = "C:\\Temp",
-  String $log_folder_path        = "C:\\ProgramData\\Devpro\\ConfigurationAgent\\Logs"
+  String $application_name         = 'ConfigurationAgent',
+  String $installation_root_path   = "C:\\Program Files\\Devpro",
+  String $temporary_folder_path    = "C:\\Temp",
+  String $log_folder_path          = "C:\\ProgramData\\Devpro\\ConfigurationAgent\\Logs",
+  String $puppet_file_path         = "C:\\Program Files\\Puppet Labs\\Puppet\\bin\\puppet.bat",
+  String $package_repository       = undef,
+  String $application_version      = undef,
+  String $logging_level            = 'Information',
+  String $windows_7zip_exe_path    = "C:\\Program Files\\7-Zip\\7z.exe",
+  String $iis_appcmd_exe_path      = "C:\\Windows\\system32\\inetsrv\\appcmd.exe",
+  String $iis_apppool_name         = 'ConfigurationAgentAppPool',
+  String $iis_site_name            = 'Default Web Site',
+  String $iis_apppool_identitytype = 'LocalSystem'
 ) {
   # input validation
   validate_re($application_version, ['^(\d_\d_\d_\d.*)$'])
@@ -71,7 +72,7 @@ class alteredinfra::application::configagent (
       enable32_bit_app_on_win64 => false,
       managed_runtime_version   => 'v4.0',
       managed_pipeline_mode     => 'Integrated',
-      identity_type             => 'ApplicationPoolIdentity'
+      identity_type             => $iis_apppool_identitytype
     }
     iis_application { "${iis_site_name}\\${application_name}":
       ensure          => 'present',

@@ -56,7 +56,7 @@ class alteredinfra::application::configagent (
     ensure  => file,
     content => epp('alteredinfra/configagent/web.config.epp', {
         'dotnet_argument'    => ".\\Devpro.ConfigurationAgent.WebApp.dll",
-        'stdout_log_enabled' => false,
+        'stdout_log_enabled' => true,
         'stdout_log_file'    => "${log_folder_path}\\stdout"
       })
   }

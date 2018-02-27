@@ -45,10 +45,11 @@ It's advised to use `r10k` and a puppetfile to load modules.
 
 If you use a `puppetfile` (with a tool like r10k for example), here is the line to be added:
 
-```rubydsl
+```ini
 mod 'alteredinfra',
   :git    => 'https://github.com/devpro/puppet-infra',
   :branch => 'dev'
+#  :commit => 'a53b1c606b9bd9cafd7d8197f3887f99fbda2ab0'
 ```
 
 In addition to `include alteredinfra::application::configagent`, the following data needs to be configured:
